@@ -1,10 +1,11 @@
 === WF Magnific Lightbox ===
 Contributors: wunderfarm
 Donate link: http://www.wunderfarm.com/
-Tags: lightbox, magnific lightbox, gallery, image, photo, css3, responsive, admin, code, content, embed, html, integration, javascript, plugin, simple, lightweight, multi language, copyright
-Requires at least: 3.0.1
-Tested up to: 6.5
-Stable tag: 0.9.13
+Tags: lightbox, gallery, image, responsive, copyright
+Requires at least: 4.6
+Tested up to: 7.0
+Requires PHP: 7.0
+Stable tag: 0.9.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +39,9 @@ Thanks to Dmitry Semenov for the original script ([Magnific Popup](http://dimsem
 4. Truly responsive lightbox with css bases resizing
 
 == Changelog ==
+
+= 0.9.14 =
+Security: fixed a stored XSS in the Classic Editor image-insertion flow by escaping the data-* attributes (data-headline/data-description/data-copyright). Fixed a related DOM-based XSS in the lightbox script, which now escapes the headline/description/copyright before displaying them. Hardened the settings page output and input sanitization (including the copyright field), escaped translated strings, and added direct-access guards to all include files.
 
 = 0.9.13 =
 Added support for WordPress 5.0 block galleries.

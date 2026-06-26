@@ -1,4 +1,7 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
+
 /**
  * wf_mlightbox_gallery_default_type_set_link sets the detault value for new galleries to link "to media file" instead the "attachment page"
  */
@@ -45,9 +48,9 @@ add_filter( 'wp_get_attachment_image_attributes', 'wf_mlightbox_add_attachment_a
 function wf_mlightbox_add_editor_image_attributes($html, $id) {
 	//get available image informations:
   $attachmentInfos = wf_mlightbox_get_attachment_filtered_info($id);
-	$attr['data-headline'] = !empty($attachmentInfos['headline']) ? ' data-headline="' . $attachmentInfos['headline'] . '"' : "";
-	$attr['data-description'] = !empty($attachmentInfos['description']) ? ' data-description="' . $attachmentInfos['description'] . '"' : "";
-	$attr['data-copyright'] = !empty($attachmentInfos['copyright']) ? ' data-copyright="' . $attachmentInfos['copyright'] . '"' : "";
+	$attr['data-headline'] = !empty($attachmentInfos['headline']) ? ' data-headline="' . esc_attr($attachmentInfos['headline']) . '"' : "";
+	$attr['data-description'] = !empty($attachmentInfos['description']) ? ' data-description="' . esc_attr($attachmentInfos['description']) . '"' : "";
+	$attr['data-copyright'] = !empty($attachmentInfos['copyright']) ? ' data-copyright="' . esc_attr($attachmentInfos['copyright']) . '"' : "";
 	$html = str_replace('<img','<img ' . $attr['data-headline'] . $attr['data-description'] . $attr['data-copyright'] ,$html);
 
 	return $html;
@@ -68,9 +71,9 @@ if(!function_exists('wf_mlightbox_add_copyright_field_to_media_uploader')) :
     $attachmentMetadata = wp_get_attachment_metadata($post->ID);
     if (is_array($attachmentMetadata)) {
   		$form_fields['copyright_field'] = array(
-  			'label' => __('Copyright'),
-  			'value' => $attachmentMetadata['image_meta']['copyright'],
-  			'helps' => __('Set a copyright credit for the attachment')
+  			'label' => __('Copyright','wf-magnific-lightbox'),
+  			'value' => isset($attachmentMetadata['image_meta']['copyright']) ? $attachmentMetadata['image_meta']['copyright'] : '',
+  			'helps' => __('Set a copyright credit for the attachment','wf-magnific-lightbox')
   		);
     }
 		return $form_fields;
@@ -95,7 +98,7 @@ if(!function_exists('wf_mlightbox_add_copyright_field_to_media_uploader_save')) 
 	function wf_mlightbox_add_copyright_field_to_media_uploader_save( $post, $attachment ) {
 		$meta = wp_get_attachment_metadata($post['ID']);
 		if ( ! empty( $attachment['copyright_field'] ) )
-			$meta['image_meta']['copyright'] = $attachment['copyright_field'];
+			$meta['image_meta']['copyright'] = sanitize_text_field( $attachment['copyright_field'] );
 		else
 			$meta['image_meta']['copyright'] = '';
 

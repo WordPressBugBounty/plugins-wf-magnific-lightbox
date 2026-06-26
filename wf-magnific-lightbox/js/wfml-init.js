@@ -101,33 +101,54 @@
     return 'a[href*=".jpg"][rel=' + rel + '], a[href*=".jpeg"][rel=' + rel + '], a[href*=".png"][rel=' + rel + '], a[href*=".gif"][rel=' + rel + ']';
   }
 
-  function titleSrc(item) {
-    if (item.el.find('img').attr('data-headline')) {
-      return item.el.find('img').attr('data-headline');
-    } else if (item.el.find('img').attr('data-image-title')) {
-      return item.el.find('img').attr('data-image-title');
-    } else if (item.el.attr('data-headline')) {
-      return item.el.attr('data-headline');
-    } else if (item.el.attr('data-image-title')) {
-      return item.el.attr('data-image-title');
+  // Escape untrusted attachment metadata before it is injected into the DOM.
+  // The lightbox title/description/copyright are written with jQuery .html()
+  // (Magnific Popup renders titleSrc via .html() too), so the decoded value of
+  // a data-* attribute must never be treated as markup.
+  function escapeHtml(value) {
+    if (value === undefined || value === null) {
+      return '';
     }
-    return item.el.find('img').attr('alt');
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function titleSrc(item) {
+    var raw;
+    if (item.el.find('img').attr('data-headline')) {
+      raw = item.el.find('img').attr('data-headline');
+    } else if (item.el.find('img').attr('data-image-title')) {
+      raw = item.el.find('img').attr('data-image-title');
+    } else if (item.el.attr('data-headline')) {
+      raw = item.el.attr('data-headline');
+    } else if (item.el.attr('data-image-title')) {
+      raw = item.el.attr('data-image-title');
+    } else {
+      raw = item.el.find('img').attr('alt');
+    }
+    return escapeHtml(raw);
   }
 
   function descriptionSrc(item) {
+    var raw;
     if (item.el.find('img').attr('data-description')) {
-      return item.el.find('img').attr('data-description');
+      raw = item.el.find('img').attr('data-description');
     } else if (item.el.find('img').attr('data-image-description')) {
-      return item.el.find('img').attr('data-image-description');
+      raw = item.el.find('img').attr('data-image-description');
     } else if (item.el.attr('data-description')) {
-      return item.el.attr('data-description');
+      raw = item.el.attr('data-description');
     }
+    return escapeHtml(raw);
   }
 
   function updateDescription() {
     $('.mfp-description').html('');
     $('.mfp-description').html(descriptionSrc(this.currItem));
-    $('.mfp-copyright').html(this.currItem.el.find('img').attr('data-copyright'));
+    $('.mfp-copyright').html(escapeHtml(this.currItem.el.find('img').attr('data-copyright')));
   }
 
   $(document).ready(function() {

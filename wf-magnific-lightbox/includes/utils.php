@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
+
 	if (!function_exists('wf_get_languages')) {
 
     function wf_get_languages() {

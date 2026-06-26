@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
+
 class WfMlightboxSettingsPage
 {
 
@@ -45,8 +47,8 @@ class WfMlightboxSettingsPage
 
         ?>
         <div class="wrap">
-            <h2><?php _e('WF Magnific Lightbox','wf-magnific-lightbox') ?></h2>
-            <p><?php _e('Here you can change some stuff or leave the default options.','wf-magnific-lightbox') ?></p>
+            <h2><?php esc_html_e('WF Magnific Lightbox','wf-magnific-lightbox') ?></h2>
+            <p><?php esc_html_e('Here you can change some stuff or leave the default options.','wf-magnific-lightbox') ?></p>
             <hr>
             <form method="post" action="options.php">
             <?php
@@ -57,7 +59,7 @@ class WfMlightboxSettingsPage
             ?>
             </form>
             <hr>
-            <small><?php _e('Thanks to Dmitry Semenov for the original script (<a href="http://dimsemenov.com/plugins/magnific-popup/" target="_blank" title="Magnific Popup - Responsive jQuery Lightbox Plugin">Magnific Popup</a>) and his permission to use it in this wordpress plugin.','wf-magnific-lightbox'); ?></small>
+            <small><?php echo wp_kses( __('Thanks to Dmitry Semenov for the original script (<a href="http://dimsemenov.com/plugins/magnific-popup/" target="_blank" title="Magnific Popup - Responsive jQuery Lightbox Plugin">Magnific Popup</a>) and his permission to use it in this wordpress plugin.','wf-magnific-lightbox'), array( 'a' => array( 'href' => array(), 'target' => array(), 'title' => array() ) ) ); ?></small>
         </div>
         <?php
     }
@@ -101,6 +103,7 @@ class WfMlightboxSettingsPage
         foreach ($languages as $lang) {
           add_settings_field(
               'copyrightPrefix' . '-' . $lang,
+              /* translators: %s: language code shown in parentheses, e.g. (en). */
               count($languages)>1 ? sprintf( esc_html__('Copyright Prefix %s','wf-magnific-lightbox'),'('.$lang.')' ) : __('Copyright Prefix','wf-magnific-lightbox'),
               array( $this, 'render_text_input' ),
               'wf-magnific-lightbox',
@@ -158,10 +161,15 @@ class WfMlightboxSettingsPage
      */
     public function sanitize( $input )
     {
-        foreach ($input as $key => $value) {
-            $input[$key] = $value == '1' ? true : $value;
+        if ( ! is_array( $input ) ) {
+            return ( '1' === $input ) ? true : sanitize_text_field( $input );
         }
-        return $input;
+        $sanitized = array();
+        foreach ( $input as $key => $value ) {
+            // Keep keys intact (e.g. language codes and "copyrightPrefix") and sanitize values recursively.
+            $sanitized[ $key ] = $this->sanitize( $value );
+        }
+        return $sanitized;
     }
 
     /**
@@ -187,8 +195,8 @@ class WfMlightboxSettingsPage
     {
         printf(
             '<input type="checkbox" name="%s[%s]" %s value="1" />',
-            $args['option'],
-            $args['field'],
+            esc_attr( $args['option'] ),
+            esc_attr( $args['field'] ),
             isset( $this->options[$args['option']][$args['field']] ) ? 'checked' : ''
         );
     }
@@ -201,10 +209,10 @@ class WfMlightboxSettingsPage
     {
       printf(
           '<input type="text" name="%s[%s][%s]" value="%s" />',
-          $args['option'],
-          $args['lang'],
-          $args['field'],
-          isset($this->options[$args['option']][$args['lang']][$args['field']]) ? $this->options[$args['option']][$args['lang']][$args['field']] : ''
+          esc_attr( $args['option'] ),
+          esc_attr( $args['lang'] ),
+          esc_attr( $args['field'] ),
+          isset($this->options[$args['option']][$args['lang']][$args['field']]) ? esc_attr( $this->options[$args['option']][$args['lang']][$args['field']] ) : ''
       );
     }
 }
